@@ -3,49 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Move the Box Game</title>
+    <title>Luxurious Car Racing Game</title>
     <style>
         body {
             margin: 0;
             padding: 0;
+            background-color: #eee;
             overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
-        #player {
-            width: 50px;
+
+        #gameCanvas {
+            background-color: #2c3e50;
+            border: 5px solid #fff;
+            position: relative;
+        }
+
+        .car {
+            width: 100px;
+            height: 150px;
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            margin-left: -50px;
+            background-image: url('https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Ferrari_488_GT3.jpg/500px-Ferrari_488_GT3.jpg');
+            background-size: cover;
+        }
+
+        .obstacle {
+            position: absolute;
+            width: 100px;
             height: 50px;
             background-color: red;
-            position: absolute;
+            top: -50px;
+            left: 50%;
+            margin-left: -50px;
         }
     </style>
 </head>
 <body>
-    <div id="player"></div>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
 
     <script>
-        const player = document.getElementById("player");
-        let x = 100;
-        let y = 100;
-        const moveSpeed = 10;
+        // Setup canvas and context
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
 
-        window.addEventListener('keydown', (e) => {
-            switch(e.key) {
-                case "ArrowUp":
-                    y -= moveSpeed;
-                    break;
-                case "ArrowDown":
-                    y += moveSpeed;
-                    break;
-                case "ArrowLeft":
-                    x -= moveSpeed;
-                    break;
-                case "ArrowRight":
-                    x += moveSpeed;
-                    break;
+        // Player car
+        const car = {
+            width: 100,
+            height: 150,
+            x: canvas.width / 2 - 50,
+            y: canvas.height - 160,
+            speed: 5,
+            dx: 0
+        };
+
+        // Obstacles
+        const obstacles = [];
+        let score = 0;
+
+        // Handle car movement
+        function moveCar() {
+            car.x += car.dx;
+            if (car.x < 0) car.x = 0;
+            if (car.x + car.width > canvas.width) car.x = canvas.width - car.width;
+        }
+
+        // Draw car
+        function drawCar() {
+            ctx.drawImage(
+                document.createElement("img").src = 'https://upload.wikimedia.org/wikipedia/commons/thumb/2/23/Ferrari_488_GT3.jpg/500px-Ferrari_488_GT3.jpg', 
+                car.x, car.y, car.width, car.height);
+        }
+
+        // Create an obstacle
+        function createObstacle() {
+            const obstacle = {
+                x: Math.random() * (canvas.width - 100),
+                y: -50,
+                width: 100,
+                height: 50,
+                speed: 3
+            };
+            obstacles.push(obstacle);
+        }
+
+        // Move obstacles
+        function moveObstacles() {
+            for (let i = 0; i < obstacles.length; i++) {
+                obstacles[i].y += obstacles[i].speed;
+                if (obstacles[i].y > canvas.height) {
+                    obstacles.splice(i, 1);
+                    score++;
+                }
             }
-            player.style.left = `${x}px`;
-            player.style.top = `${y}px`;
-        });
+        }
+
+        // Detect collisions
+        function detectCollision() {
+            for (let i = 0; i < obstacles.length; i++) {
+                if (
+                    car.x < obstacles[i].x + obstacles[i].width &&
+                    car.x + car.width > obstacles[i].x &&
+                    car.y < obstacles[i].y + obstacles[i].height &&
+                    car.y + car.height > obstacles[i].y
+                ) {
+                    gameOver();
+                }
+            }
+        }
+
+        // Draw obstacles
+        function drawObstacles() {
+            for (let i = 0; i < obstacles.length; i++) {
+                ctx.fillStyle = "red";
+                ctx.fillRect(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
+            }
+        }
+
+        // Display score
+        function drawScore() {
+            ctx.font = "20px Arial";
+            ctx.fillStyle = "#fff";
+            ctx.fillText("Score: " + score, 10, 30);
+        }
+
+        // Game Over function
+        function gameOver() {
+            alert("Game Over! Your Score: " + score);
+            document.location.reload();
+        }
+
+        // Update game
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawCar();
+            moveCar();
+            moveObstacles();
+            drawObstacles();
+            drawScore();
+            detectCollision();
+
+            requestAnimationFrame(update);
+        }
+
+        // Control the car
+        function keyDown(e) {
+            if (e.key === "ArrowLeft") car.dx = -car.speed;
+            if (e.key === "ArrowRight") car.dx = car.speed;
+        }
+
+        function keyUp(e) {
+            if (e.key === "ArrowLeft" || e.key === "ArrowRight") car.dx = 0;
+        }
+
+        // Start the game
+        setInterval(createObstacle, 2000);  // New obstacle every 2 seconds
+        document.addEventListener("keydown", keyDown);
+        document.addEventListener("keyup", keyUp);
+
+        update();
     </script>
 </body>
 </html>
-
