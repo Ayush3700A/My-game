@@ -1,1 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Move the Box Game</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+        #player {
+            width: 50px;
+            height: 50px;
+            background-color: red;
+            position: absolute;
+        }
+    </style>
+</head>
+<body>
+    <div id="player"></div>
+
+    <script>
+        const player = document.getElementById("player");
+        let x = 100;
+        let y = 100;
+        const moveSpeed = 10;
+
+        window.addEventListener('keydown', (e) => {
+            switch(e.key) {
+                case "ArrowUp":
+                    y -= moveSpeed;
+                    break;
+                case "ArrowDown":
+                    y += moveSpeed;
+                    break;
+                case "ArrowLeft":
+                    x -= moveSpeed;
+                    break;
+                case "ArrowRight":
+                    x += moveSpeed;
+                    break;
+            }
+            player.style.left = `${x}px`;
+            player.style.top = `${y}px`;
+        });
+    </script>
+</body>
+</html>
 
